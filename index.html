@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dunya Cars • Backoffice Rate Manager</title>
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --surface: #fff;
+      --surface-soft: #f9fbfd;
+      --line: #d8dee7;
+      --line-dark: #b7c2d1;
+      --text: #243549;
+      --muted: #607287;
+      --primary: #2457d6;
+      --primary-soft: #eaf1ff;
+      --ok: #1e9e61;
+      --warn: #cc8a12;
+      --danger: #c24545;
+      --table-head: #2f3f52;
+      --selected: #dce9ff;
+      --locked: #f0f3f8;
+      --shadow: 0 8px 20px rgba(30, 45, 74, .08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .shell {
+      max-width: 1500px;
+      margin: 18px auto;
+      padding: 0 12px 24px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, #ffffff 0%, #f7f9fc 100%);
+    }
+
+    .title-wrap { display: flex; align-items: center; gap: 10px; }
+    h1 { margin: 0; font-size: 1.25rem; }
+    .meta { color: var(--muted); font-size: .9rem; }
+
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 650;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.success { background: #eaf8f1; color: #1d7f50; border-color: #b8e7cf; }
+    .btn.warning { background: #fff5df; color: #9b6911; border-color: #f3d79e; }
+    .btn.ink { background: #eef2f6; color: #33465d; border-color: #cfd8e4; }
+    .btn.violet { background: #efe9ff; color: #5f43bb; border-color: #d6c8ff; }
+
+    .filters {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 2fr;
+      gap: 10px;
+    }
+
+    .group {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--surface-soft);
+    }
+
+    .group h3 {
+      margin: 0 0 8px;
+      font-size: .8rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .chip {
+      border: 1px solid var(--line-dark);
+      background: #fff;
+      color: #345;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: .86rem;
+      cursor: pointer;
+      min-width: 62px;
+      text-align: center;
+    }
+
+    .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .acris {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #b9d8c5;
+      background: #f6fdf9;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: .85rem;
+      min-width: 95px;
+    }
+
+    .acris.active { background: #1e9e61; color: #fff; border-color: #1e9e61; }
+
+    .status {
+      margin: 0 10px 10px;
+      border: 1px solid #cfddf2;
+      background: #edf3ff;
+      color: #2d4672;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: .92rem;
+      font-weight: 600;
+    }
+
+    .substatus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 10px 10px;
+      border: 1px solid #bee7cd;
+      background: #e8f9ef;
+      color: #166742;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    .table-panel {
+      margin: 0 10px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: auto;
+      max-height: 60vh;
+      background: #fff;
+    }
+
+    table { border-collapse: separate; border-spacing: 0; min-width: 1680px; width: 100%; }
+    th, td { border-right: 1px solid #e1e7ef; border-bottom: 1px solid #e1e7ef; padding: 9px 10px; white-space: nowrap; }
+    th {
+      background: var(--table-head);
+      color: #fff;
+      font-size: .88rem;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      text-align: left;
+    }
+
+    td { font-size: .9rem; }
+    td.date { font-weight: 700; background: #fff; position: sticky; left: 0; z-index: 1; }
+    td.code { font-weight: 700; background: #f8df94; position: sticky; left: 109px; z-index: 1; }
+    td.locked { background: var(--locked); color: #99a8b8; }
+    td.selected { background: var(--selected); outline: 2px solid #4d84f0; outline-offset: -2px; }
+    td[data-editable="1"] { cursor: cell; }
+    td.editing { padding: 0; }
+
+    .cell-input {
+      width: 100%;
+      border: 0;
+      outline: 2px solid #4d84f0;
+      font-size: .9rem;
+      padding: 8px;
+      text-align: right;
+      background: #fff;
+    }
+
+    .context {
+      position: fixed;
+      display: none;
+      min-width: 240px;
+      background: #fff;
+      border: 1px solid var(--line-dark);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 60;
+      padding: 6px 0;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-size: .86rem;
+      color: #334a66;
+    }
+
+    .menu-item:hover { background: #eef4ff; }
+    .menu-sep { height: 1px; background: #e5ebf3; margin: 4px 0; }
+    .menu-shortcut { color: #8ca0b7; font-size: .78rem; }
+
+    .toast {
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      background: #295fdd;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .85rem;
+      display: none;
+      z-index: 61;
+    }
+
+    .integrity-issue {
+      background: #ffe9e9 !important;
+      color: #8f2f2f !important;
+      outline: 2px solid #d26666;
+      outline-offset: -2px;
+    }
+
+    .history-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 44, 63, .4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 82;
+      padding: 12px;
+    }
+
+    .history-modal {
+      width: min(760px, 100%);
+      max-height: 82vh;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 20px 70px rgba(0,0,0,.2);
+    }
+
+    .history-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e8edf4;
+      font-size: .88rem;
+      color: #334a66;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .history-time { color: #7f91a8; font-size: .8rem; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 44, 63, .46);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 80;
+      padding: 12px;
+    }
+
+    .modal {
+      width: min(980px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 20px 70px rgba(0,0,0,.25);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5ebf3;
+      background: #f8fbff;
+      font-weight: 700;
+    }
+
+    .modal-body { padding: 14px; }
+
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-bottom: 1px solid #e5ebf3; padding-bottom: 12px; }
+    .split h4 { margin: 0 0 8px; font-size: .95rem; }
+
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tag {
+      border: 1px solid #c8d4e4;
+      border-radius: 7px;
+      background: #fff;
+      padding: 7px 10px;
+      font-size: .84rem;
+      cursor: pointer;
+    }
+
+    .tag.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .field { width: 100%; border: 1px solid #b8c6d9; border-radius: 7px; padding: 10px; font-size: .92rem; }
+    .example { margin-top: 8px; background: #f4f8ff; border: 1px solid #d6e3fa; border-radius: 8px; padding: 8px; font-size: .82rem; color: #4d6280; }
+
+    .days {
+      padding-top: 12px;
+    }
+
+    .days-grid { display: grid; grid-template-columns: repeat(7, minmax(90px,1fr)); gap: 6px; }
+    .day { border: 1px solid #d3dce9; border-radius: 7px; background: #fbfdff; padding: 7px; font-size: .82rem; display: flex; gap: 6px; align-items: center; }
+
+    .modal-foot {
+      border-top: 1px solid #e5ebf3;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 14px;
+      background: #fafcff;
+    }
+
+    .btn-light { border: 1px solid #cad5e5; background: #fff; color: #31445d; }
+
+
+    .site-footer {
+      margin: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: #5f7188;
+      font-size: .84rem;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .site-footer a {
+      color: #2457d6;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .site-footer a:hover { text-decoration: underline; }
+
+    svg.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (max-width: 1100px) {
+      .toolbar { grid-template-columns: repeat(3, minmax(120px,1fr)); }
+      .filters { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
+      .days-grid { grid-template-columns: repeat(5, minmax(88px, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .toolbar { grid-template-columns: repeat(2, minmax(120px,1fr)); }
+      .days-grid { grid-template-columns: repeat(3, minmax(88px, 1fr)); }
+      td.code { left: 102px; }
+    }
+
+    @media (max-width: 520px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .days-grid { grid-template-columns: repeat(2, minmax(88px, 1fr)); }
+      .toast { left: 10px; right: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+        <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 3v5h5"/><path d="M3.05 13a9 9 0 1 0 3-6.7L3 8"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="M3 13h18"/><path d="m6 13 2-5h8l2 5"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-wand" viewBox="0 0 24 24"><path d="m3 21 9-9"/><path d="m14 5 5 5"/><path d="m11 8 5-5"/><path d="M2 12h4"/><path d="m8 2 1 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></symbol>
+  </svg>
+
+  <main class="shell">
+    <section class="card topbar">
+      <div class="title-wrap">
+                <div>
+          <h1>Rate Table Editor</h1>
+          <div class="meta">Dunya Cars • Fleet & Rates • Plan #8171</div>
+        </div>
+      </div>
+      <a class="meta" href="#">Back to Fleet & Rates</a>
+    </section>
+
+    <section class="card toolbar">
+      <button class="btn primary" id="openModal"><svg class="icon"><use href="#i-edit"/></svg>Update Prices</button>
+      <button class="btn success" id="copyRatesBtn"><svg class="icon"><use href="#i-copy"/></svg>Copy Rates</button>
+      <button class="btn warning" id="integrityBtn"><svg class="icon"><use href="#i-check"/></svg>Integrity Check</button>
+      <button class="btn ink" id="exportBtn"><svg class="icon"><use href="#i-download"/></svg>Export</button>
+      <button class="btn violet" id="viewHistoryBtn"><svg class="icon"><use href="#i-history"/></svg>View History</button>
+    </section>
+
+    <section class="card filters">
+      <div class="group">
+        <h3>YEAR</h3>
+        <div class="chips" id="yearChips">
+          <button class="chip" type="button">2025</button>
+          <button class="chip active" type="button">2026</button>
+          <button class="chip" type="button">2027</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>MONTH</h3>
+        <div class="chips" id="monthChips"></div>
+      </div>
+
+      <div class="group">
+        <h3 style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="display:flex;align-items:center;gap:6px;"><svg class="icon"><use href="#i-car"/></svg>ACRISS CODES</span>
+          <span>
+            <button class="chip" id="selectAllAcriss" type="button">Select all</button>
+            <button class="chip" id="clearAcriss" type="button">Clear</button>
+          </span>
+        </h3>
+        <div class="chips" id="acrisChips"></div>
+      </div>
+    </section>
+
+    <section class="status" id="viewingStatus">Viewing: February 2026 • ACRISS: CCAR</section>
+    <div class="substatus" id="saveStatus"><svg class="icon"><use href="#i-save"/></svg>All changes autosaved</div>
+
+    <section class="table-panel">
+      <table id="rateTable"></table>
+    </section>
+
+    <footer class="site-footer">
+      made with ❤️ by
+      <a href="https://ediontech.com" target="_blank" rel="noopener noreferrer">Edion Web Technologies</a>
+    </footer>
+
+  </main>
+
+  <aside class="context" id="contextMenu">
+    <button class="menu-item" id="mCopy">Copy value <span class="menu-shortcut">Ctrl+C</span></button>
+    <button class="menu-item" id="mPaste">Paste to selected <span class="menu-shortcut">Ctrl+V</span></button>
+    <button class="menu-item" id="mFillDown">Fill down from first <span class="menu-shortcut">Alt+↓</span></button>
+    <div class="menu-sep"></div>
+    <button class="menu-item" id="mApplyOp"><span style="display:flex;gap:8px;align-items:center"><svg class="icon"><use href="#i-wand"/></svg>Quick operation</span><span class="menu-shortcut">+10 / -5%</span></button>
+    <button class="menu-item" id="mClear"><span style="display:flex;gap:8px;align-items:center"><svg class="icon"><use href="#i-trash"/></svg>Clear values</span><span></span></button>
+    <div class="menu-sep"></div>
+    <button class="menu-item" id="mLock"><span style="display:flex;gap:8px;align-items:center"><svg class="icon"><use href="#i-lock"/></svg>Lock selected</span><span></span></button>
+    <button class="menu-item" id="mUnlock"><span style="display:flex;gap:8px;align-items:center"><svg class="icon"><use href="#i-unlock"/></svg>Unlock selected</span><span></span></button>
+  </aside>
+
+  <div class="toast" id="selectionToast"></div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <section class="modal">
+      <header class="modal-head">
+        <span style="display:flex;align-items:center;gap:8px;"><svg class="icon"><use href="#i-edit"/></svg>Bulk Update Prices</span>
+        <button class="icon-btn" id="closeModal" aria-label="close"><svg class="icon"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="modal-body">
+        <div class="split">
+          <div>
+            <h4>Date Range</h4>
+            <div class="tags" id="rangeTags">
+              <button class="tag">Next 7 Days</button>
+              <button class="tag">Full Month</button>
+              <button class="tag">Next 3 Months</button>
+              <button class="tag" id="customRangeBtn">Custom</button>
+            </div>
+            <div id="customRange" style="display:none;">
+              <input class="field" type="date" id="fromDate" />
+              <div style="height:6px"></div>
+              <input class="field" type="date" id="toDate" />
+            </div>
+          </div>
+          <div>
+            <h4>New Price / Operation</h4>
+            <input class="field" type="text" id="operationInput" placeholder="120, +10, -15, +5%, -8%" />
+            <div class="example">
+              <strong>Accepted formats:</strong><br>
+              <code>120</code> set fixed price<br>
+              <code>+10</code> add amount<br>
+              <code>-5%</code> reduce by percentage
+            </div>
+          </div>
+        </div>
+
+        <div class="days">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+            <h4 style="margin:0">Rental Days</h4>
+            <button class="tag" id="toggleDays" type="button">Toggle All</button>
+          </div>
+          <div class="days-grid" id="daysGrid"></div>
+        </div>
+      </div>
+
+      <footer class="modal-foot">
+        <button class="btn btn-light" id="cancelModal">Cancel</button>
+        <button class="btn primary" id="applyPrices">Apply Prices</button>
+      </footer>
+    </section>
+  </div>
+
+
+  <div class="history-backdrop" id="historyBackdrop">
+    <section class="history-modal">
+      <header class="modal-head">
+        <span style="display:flex;align-items:center;gap:8px;"><svg class="icon"><use href="#i-history"/></svg>Change History</span>
+        <button class="icon-btn" id="closeHistory" aria-label="close history"><svg class="icon"><use href="#i-close"/></svg></button>
+      </header>
+      <div id="historyList"></div>
+      <footer class="modal-foot">
+        <button class="btn btn-light" id="closeHistoryFooter">Close</button>
+      </footer>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const acrissCodes = ['CCAR','CCMR','ECAR','ECMR','FFAR','IDAR','IFAR','MDMR','PVAR','SDAR'];
+    const historyEvents = [];
+
+    // Build month chips
+    const monthWrap = document.getElementById('monthChips');
+    monthNames.forEach((m,i)=>{
+      const b = document.createElement('button');
+      b.type='button';
+      b.className='chip'+(i===1?' active':'');
+      b.textContent=m;
+      b.addEventListener('click',()=>{
+        monthWrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        refreshViewing();
+      });
+      monthWrap.appendChild(b);
+    });
+
+    // ACRISS
+    const acrissWrap = document.getElementById('acrisChips');
+    acrissCodes.forEach((code,i)=>{
+      const label = document.createElement('label');
+      label.className='acris'+(i===0?' active':'');
+      label.innerHTML=`<input type="checkbox" ${i===0?'checked':''}/> ${code}`;
+      const input = label.querySelector('input');
+      input.addEventListener('change',()=>{
+        label.classList.toggle('active', input.checked);
+        refreshViewing();
+      });
+      acrissWrap.appendChild(label);
+    });
+
+    document.getElementById('selectAllAcriss').onclick = ()=>{
+      acrissWrap.querySelectorAll('.acris').forEach(el=>{
+        el.classList.add('active');
+        el.querySelector('input').checked=true;
+      });
+      refreshViewing();
+    };
+
+    document.getElementById('clearAcriss').onclick = ()=>{
+      acrissWrap.querySelectorAll('.acris').forEach(el=>{
+        el.classList.remove('active');
+        el.querySelector('input').checked=false;
+      });
+      refreshViewing();
+    };
+
+    document.querySelectorAll('#yearChips .chip').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('#yearChips .chip').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        refreshViewing();
+      });
+    });
+
+    function refreshViewing(){
+      const year = document.querySelector('#yearChips .chip.active')?.textContent || '2026';
+      const mShort = document.querySelector('#monthChips .chip.active')?.textContent || 'Feb';
+      const idx = Math.max(0, monthNames.indexOf(mShort));
+      const mLong = new Date(2026, idx, 1).toLocaleString('en',{month:'long'});
+      const selectedCodes = [...document.querySelectorAll('#acrisChips .acris input:checked')].map(i=>i.parentElement.textContent.trim());
+      document.getElementById('viewingStatus').textContent = `Viewing: ${mLong} ${year} • ACRISS: ${selectedCodes.length?selectedCodes.join(', '):'None'}`;
+    }
+
+    // Table
+    const table = document.getElementById('rateTable');
+    const head = ['Pickup Date','ACRISS',...Array.from({length:16},(_,i)=>`Day ${i+1}`)];
+    const thead = document.createElement('thead');
+    const hr = document.createElement('tr');
+    head.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; hr.appendChild(th); });
+    thead.appendChild(hr);
+
+    const tbody = document.createElement('tbody');
+    for(let r=1;r<=28;r++){
+      const tr = document.createElement('tr');
+      const d = new Date(2026,1,r).toLocaleDateString('en-GB').replaceAll('/','-');
+      const dateTd = document.createElement('td'); dateTd.className='date'; dateTd.textContent=d; tr.appendChild(dateTd);
+      const codeTd = document.createElement('td'); codeTd.className='code'; codeTd.textContent='CCAR'; tr.appendChild(codeTd);
+
+      for(let c=1;c<=16;c++){
+        const td = document.createElement('td');
+        td.textContent = (c<3?451.46:52.00).toFixed(2);
+        td.dataset.row = String(r);
+        td.dataset.col = String(c);
+        td.dataset.editable = r>5 ? '1' : '';
+        if(r<=5) td.classList.add('locked');
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.append(thead,tbody);
+
+    // Direct inline editing: double-click cell
+    table.addEventListener('dblclick',(e)=>{
+      const td = e.target.closest('td');
+      if(!td || td.cellIndex<2 || !td.dataset.editable || td.classList.contains('locked')) return;
+      if(td.classList.contains('editing')) return;
+      startCellEdit(td);
+    });
+
+    function startCellEdit(td){
+      td.classList.add('editing');
+      const old = td.textContent;
+      td.innerHTML = `<input class="cell-input" type="text" value="${old}" />`;
+      const input = td.querySelector('input');
+      input.focus();
+      input.select();
+
+      const commit = ()=>{
+        const next = sanitizeNumber(input.value, old);
+        td.textContent = Number(next).toFixed(2);
+        td.classList.remove('editing');
+        flashSaved();
+        logHistory('Inline Edit', `Updated one cell to ${Number(next).toFixed(2)}`);
+      };
+      const cancel = ()=>{
+        td.textContent = old;
+        td.classList.remove('editing');
+      };
+
+      input.addEventListener('keydown',(ev)=>{
+        if(ev.key==='Enter') commit();
+        if(ev.key==='Escape') cancel();
+      });
+      input.addEventListener('blur', commit);
+    }
+
+    function sanitizeNumber(value, fallback){
+      const n = Number(String(value).replace(/[^0-9.-]/g,''));
+      if(Number.isFinite(n)) return Math.max(0,n);
+      return Number(fallback)||0;
+    }
+
+    // Selection + context menu
+    const context = document.getElementById('contextMenu');
+    const toast = document.getElementById('selectionToast');
+    let copiedValue = null;
+    let isMouseSelecting = false;
+    let mouseSelectionMoved = false;
+    let dragStartCell = null;
+
+    const selectedCells = () => [...document.querySelectorAll('tbody td.selected')];
+
+    function clearSelectedCells() {
+      selectedCells().forEach(c => c.classList.remove('selected'));
+    }
+
+    function validEditableCell(td) {
+      return td && td.tagName === 'TD' && td.cellIndex >= 2 && td.dataset.editable === '1' && !td.classList.contains('locked');
+    }
+
+    function selectRange(start, end, append=false) {
+      if (!validEditableCell(start) || !validEditableCell(end)) return;
+      if (!append) clearSelectedCells();
+      const r1 = Number(start.dataset.row), r2 = Number(end.dataset.row);
+      const c1 = Number(start.dataset.col), c2 = Number(end.dataset.col);
+      const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+      const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+      for (let r=minR; r<=maxR; r++) {
+        for (let c=minC; c<=maxC; c++) {
+          const cell = table.querySelector(`tbody td[data-row="${r}"][data-col="${c}"]`);
+          if (validEditableCell(cell)) cell.classList.add('selected');
+        }
+      }
+      updateSelectionToast();
+    }
+
+    function updateSelectionToast(){
+      const total = selectedCells().length;
+      if(!total){ toast.style.display='none'; return; }
+      toast.textContent = `${total} cell${total>1?'s':''} selected • right-click for power actions`;
+      toast.style.display='block';
+    }
+
+    table.addEventListener('mousedown', (e) => {
+      const td = e.target.closest('td');
+      if (!validEditableCell(td) || e.button !== 0) return;
+      isMouseSelecting = true;
+      mouseSelectionMoved = false;
+      dragStartCell = td;
+      selectRange(td, td, e.shiftKey);
+      e.preventDefault();
+    });
+
+    table.addEventListener('mouseover', (e) => {
+      if (!isMouseSelecting || !dragStartCell) return;
+      const td = e.target.closest('td');
+      if (!validEditableCell(td)) return;
+      mouseSelectionMoved = true;
+      selectRange(dragStartCell, td, false);
+    });
+
+    table.addEventListener('click',(e)=>{
+      const td = e.target.closest('td');
+      if(!validEditableCell(td)) return;
+      if (mouseSelectionMoved) return;
+      clearSelectedCells();
+      td.classList.add('selected');
+      updateSelectionToast();
+    });
+
+    document.addEventListener('mouseup', () => {
+      isMouseSelecting = false;
+      dragStartCell = null;
+      setTimeout(() => { mouseSelectionMoved = false; }, 0);
+    });
+
+    table.addEventListener('contextmenu',(e)=>{
+      const td = e.target.closest('td');
+      if(!validEditableCell(td)) return;
+      e.preventDefault();
+      if(!td.classList.contains('selected')){
+        clearSelectedCells();
+        td.classList.add('selected');
+      }
+      updateSelectionToast();
+      context.style.left = `${e.clientX}px`;
+      context.style.top = `${e.clientY}px`;
+      context.style.display = 'block';
+    });
+
+    document.addEventListener('click',()=>context.style.display='none');
+
+    function applyOperation(op, targets){
+      targets.forEach(td=>{
+        const cur = Number(td.textContent);
+        let next = cur;
+        if (/^[+-]?\d+(\.\d+)?%$/.test(op)) next = cur + cur*(parseFloat(op)/100);
+        else if (/^[+-]\d+(\.\d+)?$/.test(op)) next = cur + parseFloat(op);
+        else if (/^\d+(\.\d+)?$/.test(op)) next = parseFloat(op);
+        td.textContent = Math.max(0,next).toFixed(2);
+      });
+    }
+
+    // Right-click actions (creative power actions)
+    document.getElementById('mCopy').onclick = ()=>{ copiedValue = selectedCells()[0]?.textContent ?? null; };
+    document.getElementById('mPaste').onclick = ()=>{
+      if(copiedValue===null) return;
+      selectedCells().forEach(td=>{ if(!td.classList.contains('locked')) td.textContent = copiedValue; });
+      flashSaved();
+      logHistory('Paste', 'Pasted copied value to selected cells');
+    };
+    document.getElementById('mFillDown').onclick = ()=>{
+      const picks = selectedCells();
+      if(!picks.length) return;
+      const seed = picks[0].textContent;
+      picks.forEach(td=>{ if(!td.classList.contains('locked')) td.textContent = seed; });
+      flashSaved();
+      logHistory('Fill Down', 'Filled selected cells from first value');
+    };
+    document.getElementById('mApplyOp').onclick = ()=>{
+      const op = prompt('Operation? Use formats like +10, -5%, 120');
+      if(!op) return;
+      applyOperation(op.trim(), selectedCells());
+      flashSaved();
+      logHistory('Quick Operation', op.trim());
+    };
+    document.getElementById('mClear').onclick = ()=>{
+      selectedCells().forEach(td=>{ if(!td.classList.contains('locked')) td.textContent='0.00'; });
+      flashSaved();
+      logHistory('Clear Values', 'Set selected cells to 0.00');
+    };
+    document.getElementById('mLock').onclick = ()=>{
+      selectedCells().forEach(td=>td.classList.add('locked'));
+      flashSaved();
+      logHistory('Lock Cells', 'Locked selected cells');
+    };
+    document.getElementById('mUnlock').onclick = ()=>{
+      selectedCells().forEach(td=>td.classList.remove('locked'));
+      flashSaved();
+      logHistory('Unlock Cells', 'Unlocked selected cells');
+    };
+
+    // keyboard shortcuts for backoffice speed
+    document.addEventListener('keydown',(e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='c' && selectedCells().length){
+        e.preventDefault(); copiedValue = selectedCells()[0].textContent;
+      }
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='v' && selectedCells().length && copiedValue!==null){
+        e.preventDefault(); selectedCells().forEach(td=>{ if(!td.classList.contains('locked')) td.textContent=copiedValue; }); flashSaved(); logHistory('Paste', 'Used keyboard paste on selected cells');
+      }
+    });
+
+    // Modal
+    const modal = document.getElementById('modalBackdrop');
+    document.getElementById('openModal').onclick = ()=>modal.style.display='flex';
+    document.getElementById('closeModal').onclick = ()=>modal.style.display='none';
+    document.getElementById('cancelModal').onclick = ()=>modal.style.display='none';
+
+    const rangeTags = [...document.querySelectorAll('#rangeTags .tag')];
+    rangeTags.forEach((tag,idx)=>{
+      if(idx===0) tag.classList.add('active');
+      tag.onclick = ()=>{
+        rangeTags.forEach(t=>t.classList.remove('active'));
+        tag.classList.add('active');
+        document.getElementById('customRange').style.display = tag.id==='customRangeBtn' ? 'block' : 'none';
+      };
+    });
+
+    const daysGrid = document.getElementById('daysGrid');
+    for(let i=1;i<=31;i++){
+      const label=document.createElement('label');
+      label.className='day';
+      label.innerHTML=`<input type="checkbox" checked /> Day ${i}`;
+      daysGrid.appendChild(label);
+    }
+
+    document.getElementById('toggleDays').onclick = ()=>{
+      const boxes = [...daysGrid.querySelectorAll('input')];
+      const all = boxes.every(b=>b.checked);
+      boxes.forEach(b=>b.checked=!all);
+    };
+
+    document.getElementById('applyPrices').onclick = ()=>{
+      const op = document.getElementById('operationInput').value.trim();
+      if(!op) return alert('Please enter an operation first.');
+      const targets = selectedCells().length ? selectedCells() : [...document.querySelectorAll('tbody td[data-editable="1"]:not(.locked)')].slice(0,40);
+      applyOperation(op, targets);
+      modal.style.display='none';
+      flashSaved();
+      logHistory('Bulk Update', op);
+    };
+
+    function flashSaved(){
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      document.getElementById('saveStatus').innerHTML = `<svg class="icon"><use href="#i-save"/></svg>Saved at ${hh}:${mm}`;
+    }
+
+
+    function showSweet(type, title, text) {
+      if (window.Swal && typeof Swal.fire === 'function') {
+        Swal.fire({
+          icon: type,
+          title,
+          text,
+          confirmButtonColor: '#2457d6'
+        });
+      } else {
+        alert(`${title}: ${text}`);
+      }
+    }
+
+    function logHistory(action, details='') {
+      historyEvents.unshift({ action, details, at: new Date() });
+      if (historyEvents.length > 50) historyEvents.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (!historyEvents.length) {
+        list.innerHTML = '<div class="history-item"><span>No changes yet.</span><span class="history-time">—</span></div>';
+        return;
+      }
+      list.innerHTML = historyEvents.map(item => {
+        const time = item.at.toLocaleString();
+        return `<div class="history-item"><span><strong>${item.action}</strong>${item.details ? ' • ' + item.details : ''}</span><span class="history-time">${time}</span></div>`;
+      }).join('');
+    }
+
+    function getEditableCells() {
+      return [...document.querySelectorAll('tbody td[data-editable="1"]:not(.locked)')];
+    }
+
+    document.getElementById('copyRatesBtn').onclick = () => {
+      const month = document.querySelector('#monthChips .chip.active')?.textContent || 'Current';
+      const rowCells = [...document.querySelectorAll('tbody tr')].map(tr => [...tr.querySelectorAll('td')].slice(2));
+      rowCells.forEach(cells => {
+        if (!cells.length) return;
+        const seed = cells[0].textContent;
+        cells.forEach(cell => { if (!cell.classList.contains('locked')) cell.textContent = seed; });
+      });
+      flashSaved();
+      logHistory('Copy Rates', `Applied first-day rate across rows for ${month}`);
+      showSweet('success', 'Copy Rates Complete', 'Rates copied successfully for current view.');
+    };
+
+    document.getElementById('integrityBtn').onclick = () => {
+      document.querySelectorAll('.integrity-issue').forEach(c => c.classList.remove('integrity-issue'));
+      const cells = getEditableCells();
+      let issues = 0;
+      cells.forEach(cell => {
+        const v = Number(cell.textContent);
+        if (!Number.isFinite(v) || v < 0 || v > 3000) {
+          cell.classList.add('integrity-issue');
+          issues += 1;
+        }
+      });
+      if (!issues) {
+        logHistory('Integrity Check', 'No issues found');
+        showSweet('success', 'Integrity Check Passed', 'No invalid values found.');
+      } else {
+        logHistory('Integrity Check', `${issues} issue(s) flagged`);
+        showSweet('warning', 'Integrity Check Found Issues', `${issues} issue(s) were flagged and highlighted in red.`);
+      }
+    };
+
+    document.getElementById('exportBtn').onclick = () => {
+      const rows = [...document.querySelectorAll('tbody tr')];
+      const header = ['Pickup Date','ACRISS',...Array.from({length:16},(_,i)=>`Day ${i+1}`)];
+      const csv = [header.join(',')];
+      rows.forEach(row => {
+        const vals = [...row.querySelectorAll('td')].map(td => td.textContent.replace(/,/g,''));
+        csv.push(vals.join(','));
+      });
+      const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `dunya-rates-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      logHistory('Export', 'CSV exported');
+    };
+
+    const historyBackdrop = document.getElementById('historyBackdrop');
+    document.getElementById('viewHistoryBtn').onclick = () => {
+      renderHistory();
+      historyBackdrop.style.display = 'flex';
+    };
+    document.getElementById('closeHistory').onclick = () => historyBackdrop.style.display = 'none';
+    document.getElementById('closeHistoryFooter').onclick = () => historyBackdrop.style.display = 'none';
+
+    renderHistory();
+    refreshViewing();
+  </script>
+</body>
+</html>
