@@ -1,0 +1,23 @@
+#--------------------------------------------------------------------
+# CodeIgniter-style environment template
+# Copy this file to .env for local development.
+#--------------------------------------------------------------------
+
+CI_ENVIRONMENT = development
+
+app.name = Pricing Management Portal
+app.baseURL = 'http://127.0.0.1:8000/'
+app.debug = true
+
+pricing.defaultYear = 2026
+pricing.defaultMonth = 2
+pricing.defaultAcriss = CCAR,ECAR,FFAR
+
+database.default.DBDriver = MySQLi
+database.default.hostname = 127.0.0.1
+database.default.port = 3306
+database.default.database = pricing_management
+database.default.username = root
+database.default.password =
+database.default.charset = utf8mb4
+database.default.DBCollat = utf8mb4_unicode_ci
